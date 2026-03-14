@@ -1,5 +1,7 @@
+
 {
-  "username": "imanjaeludin",
-  "platform": "github",
-  "identity": "billions"
+  "name": "imanjaeludin",
+  "github": "imanjaeludin",
+  "type": "agent",
+  "network": "billions"
 }
