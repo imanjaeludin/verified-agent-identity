@@ -15,6 +15,19 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Verify identity file
+        id: check_type
         run: |
-          echo "Checking identity file..."
-          ls .github/identities
+          # Mencari file .json di folder identities
+          FILE_PATH=$(find .github/identities -name "*.json" | head -n 1)
+          echo "Checking file: $FILE_PATH"
+          
+          # Mengambil nilai "type" dari file JSON
+          USER_TYPE=$(jq -r '.type' "$FILE_PATH")
+          echo "user_type=$USER_TYPE" >> $GITHUB_OUTPUT
+          echo "Identity type detected: $USER_TYPE"
+
+      - name: Verify human agent
+        if: steps.check_type.outputs.user_type == 'human'
+        run: |
+          echo "Step 3: Human verification process starting..."
+          echo "Status: Verified as Human Agent."
