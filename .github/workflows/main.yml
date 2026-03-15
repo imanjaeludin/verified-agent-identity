@@ -1,33 +1,41 @@
-name: Verify Billions Identity
+name: Verify Human Identity
 
 on:
-  push:
-    branches:
-      - develop
-      - main
+  workflow_dispatch:
+    inputs:
+      agent_name:
+        description: 'finder'
+        required: true
+        default: 'finder'
+      agent_description:
+        description: 'finder'
+        required: true
+        default: 'finder AI Agent'
 
 jobs:
-  verify:
-    runs-on: ubuntu-latest
+  verify:
+    runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      - name: Verify identity file
-        id: check_type
-        run: |
-          # Mencari file .json di folder identities
-          FILE_PATH=$(find .github/identities -name "*.json" | head -n 1)
-          echo "Checking file: $FILE_PATH"
-          
-          # Mengambil nilai "type" dari file JSON
-          USER_TYPE=$(jq -r '.type' "$FILE_PATH")
-          echo "user_type=$USER_TYPE" >> $GITHUB_OUTPUT
-          echo "Identity type detected: $USER_TYPE"
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
 
-      - name: Verify human agent
-        if: steps.check_type.outputs.user_type == 'human'
-        run: |
-          echo "Step 3: Human verification process starting..."
-          echo "Status: Verified as Human Agent."
+      - name: Step 1 - Install ClawHub skill
+        run: npx clawhub@latest install verified-agent-identity
+
+      - name: Install script dependencies
+        run: |
+          cd scripts
+          npm install
+
+      - name: Step 2 - Create new Ethereum Identity
+        run: node scripts/createNewEthereumIdentity.js
+
+      - name: Step 3 - Link Human to Agent
+        run: |
+          node scripts/manualLinkHumanToAgent.js --challenge '{"imanjaeludin": "finder", "description": "finder AI Agent"}' 
